@@ -115,12 +115,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     sessionExpiresAtRef.current = null;
     warningShownRef.current = false;
     
-    toast({
-      title: "Session Expired",
-      description: "Your session has expired. Please sign in again.",
-      variant: "destructive",
-    });
-    
     navigate('/login');
   }, [toast, navigate, clearTimers]);
 

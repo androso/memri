@@ -4,6 +4,7 @@ import { AuthController } from "../controllers/auth";
 import { storage } from "../storage";
 import { upload } from "../multer";
 import { validateSchema, generateFileName, withDatabaseRetry, type MulterRequest } from "../types";
+import { TemporalStorageService } from "../models/temporal-storage-service";
 
 const router = Router();
 
@@ -55,6 +56,12 @@ router.post('/', AuthController.requireAuth, upload.single('photo'), async (req:
     const filePath = await storage.savePhotoToFirebaseStorage(file.buffer, fileName);
     console.log(`Photo saved to Firebase Storage: ${filePath}`);
     
+    // Parse temporal storage parameters
+    const { isTemporary } = req.body;
+    const makeTemporary = isTemporary === 'true' || isTemporary === true;
+    const sessionId = makeTemporary ? req.sessionId : null;
+    const expiresAt = makeTemporary && sessionId ? new Date(Date.now() + 10 * 60 * 1000) : null;
+    
     const data = validateSchema<{
       title: string;
       fileName: string;
@@ -64,13 +71,19 @@ router.post('/', AuthController.requireAuth, upload.single('photo'), async (req:
       isLiked?: boolean | null;
       collectionId?: number | null;
       uploadedAt?: Date | string | null;
+      isTemporary?: boolean;
+      sessionId?: string | null;
+      expiresAt?: Date | null;
     }>(insertPhotoSchema, {
       ...req.body,
       fileName: fileName,
       fileType: file.mimetype,
       filePath: filePath,
       collectionId: collectionId,
-      isLiked: req.body.isLiked === 'true'
+      isLiked: req.body.isLiked === 'true',
+      isTemporary: makeTemporary,
+      sessionId,
+      expiresAt
     });
 
     const photo = await withDatabaseRetry(() => storage.createPhoto(data));
@@ -245,6 +258,37 @@ router.delete('/:id', AuthController.requireAuth, async (req: Request, res: Resp
   } catch (error) {
     console.error('Error deleting photo:', error);
     return res.status(500).json({ message: 'Failed to delete photo' });
+  }
+});
+
+// Make photo permanent (convert from temporary)
+router.post('/:id/make-permanent', AuthController.requireAuth, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    
+    const photoId = parseInt(req.params.id);
+    if (isNaN(photoId)) {
+      return res.status(400).json({ message: 'Invalid photo ID' });
+    }
+
+    const photo = await storage.getPhoto(photoId);
+    if (!photo) {
+      return res.status(404).json({ message: 'Photo not found' });
+    }
+
+    // Check if user has access to the photo's collection
+    const hasAccess = await storage.checkCollectionOwnership(photo.collectionId, req.user.id);
+    if (!hasAccess) {
+      return res.status(403).json({ message: 'Not authorized to modify this photo' });
+    }
+
+    await TemporalStorageService.makePhotoPermanent(photoId);
+    return res.json({ message: 'Photo made permanent successfully' });
+  } catch (error) {
+    console.error('Error making photo permanent:', error);
+    return res.status(500).json({ message: 'Failed to make photo permanent' });
   }
 });
 

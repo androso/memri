@@ -26,6 +26,10 @@ export const collections = pgTable("collections", {
   type: collectionEnum("type").notNull().default("custom"),
   userId: integer("user_id").references(() => users.id), // Keep for backward compatibility
   createdAt: timestamp("created_at").defaultNow(),
+  // Temporal storage fields
+  isTemporary: boolean("is_temporary").default(false),
+  sessionId: text("session_id").references(() => sessions.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at"),
 });
 
 export const collectionOwners = pgTable("collection_owners", {
@@ -47,6 +51,10 @@ export const photos = pgTable("photos", {
   isLiked: boolean("is_liked").default(false),
   collectionId: integer("collection_id").references(() => collections.id),
   uploadedAt: timestamp("uploaded_at").defaultNow(),
+  // Temporal storage fields
+  isTemporary: boolean("is_temporary").default(false),
+  sessionId: text("session_id").references(() => sessions.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at"),
 });
 
 // Comments table for photo-level comments
@@ -133,6 +141,9 @@ export const insertCollectionSchema = createInsertSchema(collections).pick({
   description: true,
   type: true,
   userId: true,
+  isTemporary: true,
+  sessionId: true,
+  expiresAt: true,
 });
 
 export const insertPhotoSchema = createInsertSchema(photos).pick({
@@ -144,6 +155,9 @@ export const insertPhotoSchema = createInsertSchema(photos).pick({
   isLiked: true,
   collectionId: true,
   uploadedAt: true,
+  isTemporary: true,
+  sessionId: true,
+  expiresAt: true,
 });
 
 export const insertCommentSchema = createInsertSchema(comments).pick({

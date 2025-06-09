@@ -4,6 +4,7 @@ import { AuthController } from "../controllers/auth";
 import { storage } from "../storage";
 import { upload } from "../multer";
 import { validateSchema, generateFileName, withDatabaseRetry, type MulterRequest } from "../types";
+import { TemporalStorageService } from "../models/temporal-storage-service";
 
 const router = Router();
 
@@ -45,11 +46,16 @@ router.post('/', AuthController.requireAuth, upload.array('photo'), async (req: 
     console.log(`Creating collection for user ${req.user.username} (${req.user.id})`);
     
     // Parse form data from req.body
-    const { name, description, type } = req.body;
+    const { name, description, type, isTemporary } = req.body;
     
     if (!name) {
       return res.status(400).json({ message: 'Name is required' });
     }
+    
+    // Parse temporal storage parameters
+    const makeTemporary = isTemporary === 'true' || isTemporary === true;
+    const sessionId = makeTemporary ? req.sessionId : null;
+    const expiresAt = makeTemporary && sessionId ? new Date(Date.now() + 10 * 60 * 1000) : null;
     
     // Create collection with retry logic
     const data = validateSchema<{
@@ -57,11 +63,17 @@ router.post('/', AuthController.requireAuth, upload.array('photo'), async (req: 
       description?: string | null;
       type?: "custom" | "nature" | "travels" | "favorites";
       userId?: number | null;
+      isTemporary?: boolean;
+      sessionId?: string | null;
+      expiresAt?: Date | null;
     }>(insertCollectionSchema, {
       name,
       description,
       type: type || 'custom',
-      userId: req.user.id
+      userId: req.user.id,
+      isTemporary: makeTemporary,
+      sessionId,
+      expiresAt
     });
     
     const collection = await withDatabaseRetry(() => storage.createCollection(data));
@@ -91,7 +103,10 @@ router.post('/', AuthController.requireAuth, upload.array('photo'), async (req: 
           fileType: file.mimetype,
           filePath: filePath,
           collectionId: collection.id,
-          isLiked: false
+          isLiked: false,
+          isTemporary: makeTemporary,
+          sessionId,
+          expiresAt
         }));
         
         console.log(`Photo ${i + 1} saved successfully`);
@@ -224,6 +239,47 @@ router.delete('/:id', AuthController.requireAuth, async (req: Request, res: Resp
   } catch (error) {
     console.error('Error deleting collection:', error);
     return res.status(500).json({ message: 'Failed to delete collection' });
+  }
+});
+
+// Make collection permanent (convert from temporary)
+router.post('/:id/make-permanent', AuthController.requireAuth, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    
+    const collectionId = parseInt(req.params.id);
+    if (isNaN(collectionId)) {
+      return res.status(400).json({ message: 'Invalid collection ID' });
+    }
+
+    // Check if user is an owner of this collection
+    const ownership = await storage.checkCollectionOwnership(collectionId, req.user.id);
+    if (!ownership) {
+      return res.status(403).json({ message: 'Not authorized to modify this collection' });
+    }
+
+    await TemporalStorageService.makeCollectionPermanent(collectionId);
+    return res.json({ message: 'Collection made permanent successfully' });
+  } catch (error) {
+    console.error('Error making collection permanent:', error);
+    return res.status(500).json({ message: 'Failed to make collection permanent' });
+  }
+});
+
+// Get temporary content for current session
+router.get('/temporary/session', AuthController.requireAuth, async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.sessionId) {
+      return res.status(401).json({ message: 'User not authenticated or no active session' });
+    }
+
+    const temporaryContent = await TemporalStorageService.getTemporaryContentBySession(req.sessionId);
+    return res.json(temporaryContent);
+  } catch (error) {
+    console.error('Error fetching temporary content:', error);
+    return res.status(500).json({ message: 'Failed to fetch temporary content' });
   }
 });
 

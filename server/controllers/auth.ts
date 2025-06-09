@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { LoginRequest, loginSchema, SignupRequest, signupSchema } from "@shared/schema";
 import { validateSchema } from "../types";
 import { databaseSessionStore } from "../databaseSessionStore";
+import { TemporalStorageService } from "../models/temporal-storage-service";
 
 // Session configuration
 const SESSION_DURATION = 10 * 60 * 1000; // 10 minutes
@@ -80,6 +81,9 @@ export class AuthService {
 
   // Clean expired sessions
   static async cleanExpiredSessions(): Promise<void> {
+    // First clean expired temporary content
+    await TemporalStorageService.cleanExpiredTemporaryContent();
+    // Then clean expired sessions
     await databaseSessionStore.cleanExpiredSessions();
   }
 
@@ -119,6 +123,8 @@ export class AuthService {
 
   // Logout user
   static async logout(sessionId: string): Promise<void> {
+    // Clean up temporary content for this session before deleting the session
+    await TemporalStorageService.deleteTemporaryContentForSession(sessionId);
     await this.deleteSession(sessionId);
   }
 
@@ -273,6 +279,10 @@ export class AuthController {
       if (!req.sessionId || !req.user) {
         return res.status(401).json({ message: 'No active session to refresh' });
       }
+
+      // Extend temporary content expiration for the current session before creating new session
+      const newExpirationTime = new Date(Date.now() + 10 * 60 * 1000);
+      await TemporalStorageService.extendTemporaryContentExpiration(req.sessionId, newExpirationTime);
 
       // Delete the old session
       await AuthService.deleteSession(req.sessionId);
