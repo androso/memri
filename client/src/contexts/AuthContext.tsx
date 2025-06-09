@@ -50,8 +50,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const warningShownRef = useRef(false);
   const sessionExpiresAtRef = useRef<number | null>(null);
 
-  const SESSION_DURATION = 15 * 1000; // 15 seconds (testing)
-  const WARNING_TIME = 5 * 1000; // Show warning 5 seconds before expiry
+  const SESSION_DURATION = 10 * 60 * 1000; // 10 minutes
+  const WARNING_TIME = 2 * 60 * 1000; // Show warning 2 minutes before expiry
 
   const clearTimers = useCallback(() => {
     if (authCheckIntervalRef.current) {
@@ -90,15 +90,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       setSessionTimeRemaining(currentTimeRemaining);
       
-      // Show warning when 5 seconds remain
+      // Show warning when 2 minutes remain
       if (currentTimeRemaining <= WARNING_TIME && !warningShownRef.current) {
         warningShownRef.current = true;
-        const secondsLeft = Math.ceil(currentTimeRemaining / 1000);
+        const minutesLeft = Math.ceil(currentTimeRemaining / (60 * 1000));
         setShowExtensionDialog(true);
         playWarningSound(); // Play audio notification
         // toast({
         //   title: "Session Expiring Soon",
-        //   description: `Your session will expire in ${secondsLeft} second${secondsLeft !== 1 ? 's' : ''}. Please save your work.`,
+        //   description: `Your session will expire in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''}. Please save your work.`,
         //   variant: "destructive",
         // });
       }

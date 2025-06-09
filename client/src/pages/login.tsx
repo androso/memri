@@ -294,7 +294,7 @@ export default function LoginPage() {
                     Use "demo123" as password
                   </p>
                   <p className="text-[#F4F1EA] opacity-60 text-xs">
-                    ⚠️ Sessions last 15 seconds for security
+                    ⚠️ Sessions last 10 minutes for security
                   </p>
                 </div>
                 

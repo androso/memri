@@ -5,8 +5,8 @@ export function useSessionTimeout() {
   const { sessionTimeRemaining, user } = useAuth();
   const [timeUntilWarning, setTimeUntilWarning] = useState<number | null>(null);
   
-  const WARNING_THRESHOLD = 5 * 1000; // 5 seconds
-  const CRITICAL_THRESHOLD = 2 * 1000; // 2 seconds
+  const WARNING_THRESHOLD = 2 * 60 * 1000; // 2 minutes
+  const CRITICAL_THRESHOLD = 1 * 60 * 1000; // 1 minute
 
   useEffect(() => {
     if (!sessionTimeRemaining || !user) {
