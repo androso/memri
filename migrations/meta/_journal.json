@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1743303368916,
+      "tag": "0000_mean_groot",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748291772681,
+      "tag": "0001_rainy_runaways",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1749427849592,
+      "tag": "0002_large_mach_iv",
+      "breakpoints": true
+    }
+  ]
+}

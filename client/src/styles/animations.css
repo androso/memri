@@ -1,0 +1,69 @@
+/* Custom animations and effects */
+.photo-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.photo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(156, 113, 120, 0.4);
+}
+
+/* Hand-drawn style borders */
+.hand-drawn {
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+}
+
+/* Leaf and cloud decorations */
+.leaf-decoration {
+  position: absolute;
+  opacity: 0.15;
+  z-index: -1;
+  transform: rotate(15deg);
+}
+
+.cloud-decoration {
+  position: absolute;
+  opacity: 0.2;
+  z-index: -1;
+}
+
+/* Watercolor overlay */
+.watercolor-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  opacity: 0.1;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Gallery grid */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+/* Float animation */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Font styles */
+.font-quicksand {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 500;
+}
+
+.font-lato {
+  font-family: 'Lato', sans-serif;
+}
