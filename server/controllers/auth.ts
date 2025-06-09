@@ -62,7 +62,10 @@ export class AuthService {
     // Check if session is expired (already handled in databaseSessionStore.get)
     // Auto-refresh session if it's close to expiring
     const timeUntilExpiry = session.expiresAt.getTime() - Date.now();
+    console.log(`Session ${sessionId} - Time until expiry: ${Math.round(timeUntilExpiry / 1000)}s`);
+    
     if (timeUntilExpiry < SESSION_REFRESH_THRESHOLD) {
+      console.log(`Auto-refreshing session ${sessionId} due to proximity to expiry`);
       session.expiresAt = new Date(Date.now() + SESSION_DURATION);
       await databaseSessionStore.set(sessionId, session);
     }
@@ -181,7 +184,11 @@ export class AuthController {
         maxAge: 10 * 60 * 1000 // 10 minutes
       });
       
-      return res.json({ user: result.user, sessionId: result.sessionId });
+      return res.json({ 
+        user: result.user, 
+        sessionId: result.sessionId,
+        sessionExpiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
+      });
     } catch (error) {
       console.error('Login error:', error);
       return res.status(400).json({ 
@@ -239,7 +246,25 @@ export class AuthController {
 
   // Get current user endpoint handler
   static async getCurrentUser(req: Request, res: Response): Promise<Response> {
-    return res.json({ user: req.user });
+    try {
+      if (!req.sessionId) {
+        return res.status(401).json({ message: 'No active session' });
+      }
+
+      // Get session to include expiration time
+      const session = await AuthService.getSession(req.sessionId);
+      if (!session) {
+        return res.status(401).json({ message: 'Invalid or expired session' });
+      }
+
+      return res.json({ 
+        user: req.user,
+        sessionExpiresAt: session.expiresAt.toISOString()
+      });
+    } catch (error) {
+      console.error('Get current user error:', error);
+      return res.status(500).json({ message: 'Failed to get user information' });
+    }
   }
 
   // Refresh session endpoint handler
@@ -266,7 +291,8 @@ export class AuthController {
       return res.json({ 
         message: 'Session refreshed successfully',
         sessionId: newSessionId,
-        user: req.user 
+        user: req.user,
+        sessionExpiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
       });
     } catch (error) {
       console.error('Session refresh error:', error);

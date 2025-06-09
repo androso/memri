@@ -48,7 +48,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const authCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const sessionTimerRef = useRef<NodeJS.Timeout | null>(null);
   const warningShownRef = useRef(false);
-  const loginTimeRef = useRef<number | null>(null);
+  const sessionExpiresAtRef = useRef<number | null>(null);
 
   const SESSION_DURATION = 10 * 60 * 1000; // 10 minutes
   const WARNING_TIME = 2 * 60 * 1000; // Show warning 2 minutes before expiry
@@ -67,10 +67,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const startSessionTimer = useCallback(() => {
     clearTimers();
     
-    if (!loginTimeRef.current) return;
+    if (!sessionExpiresAtRef.current) return;
     
-    const timeElapsed = Date.now() - loginTimeRef.current;
-    const timeRemaining = SESSION_DURATION - timeElapsed;
+    const timeRemaining = sessionExpiresAtRef.current - Date.now();
     
     if (timeRemaining <= 0) {
       handleSessionExpiry();
@@ -81,8 +80,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     // Start countdown timer
     const countdownInterval = setInterval(() => {
-      const currentTimeElapsed = Date.now() - loginTimeRef.current!;
-      const currentTimeRemaining = SESSION_DURATION - currentTimeElapsed;
+      const currentTimeRemaining = sessionExpiresAtRef.current! - Date.now();
       
       if (currentTimeRemaining <= 0) {
         clearInterval(countdownInterval);
@@ -107,14 +105,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }, 1000);
     
     authCheckIntervalRef.current = countdownInterval;
-  }, [toast, SESSION_DURATION, WARNING_TIME]);
+  }, [toast, WARNING_TIME]);
 
   const handleSessionExpiry = useCallback(async () => {
     clearTimers();
     setSessionTimeRemaining(null);
     setUser(null);
     setShowExtensionDialog(false);
-    loginTimeRef.current = null;
+    sessionExpiresAtRef.current = null;
     warningShownRef.current = false;
     
     toast({
@@ -137,9 +135,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(data.user);
         console.log('Auth check successful:', data.user.username);
         
-        // If we don't have a login time set, set it now (for existing sessions)
-        if (!loginTimeRef.current) {
-          loginTimeRef.current = Date.now();
+        // Set session expiration time from server
+        if (data.sessionExpiresAt) {
+          sessionExpiresAtRef.current = new Date(data.sessionExpiresAt).getTime();
+          warningShownRef.current = false; // Reset warning state
           startSessionTimer();
         }
       } else {
@@ -152,7 +151,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUser(null);
           setSessionTimeRemaining(null);
           setShowExtensionDialog(false);
-          loginTimeRef.current = null;
+          sessionExpiresAtRef.current = null;
         }
       }
     } catch (error) {
@@ -160,7 +159,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null);
       setSessionTimeRemaining(null);
       setShowExtensionDialog(false);
-      loginTimeRef.current = null;
+      sessionExpiresAtRef.current = null;
     } finally {
       setLoading(false);
     }
@@ -190,10 +189,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const data = await response.json();
         setUser(data.user);
         
-        // Record login time and start session timer
-        loginTimeRef.current = Date.now();
-        warningShownRef.current = false;
-        startSessionTimer();
+        // Set session expiration time from server
+        if (data.sessionExpiresAt) {
+          sessionExpiresAtRef.current = new Date(data.sessionExpiresAt).getTime();
+          warningShownRef.current = false;
+          startSessionTimer();
+        }
         
         return true;
       } else {
@@ -224,7 +225,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null);
       setSessionTimeRemaining(null);
       setShowExtensionDialog(false);
-      loginTimeRef.current = null;
+      sessionExpiresAtRef.current = null;
       warningShownRef.current = false;
       navigate('/login');
     }

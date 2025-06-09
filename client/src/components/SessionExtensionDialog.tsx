@@ -37,13 +37,14 @@ export function SessionExtensionDialog({ open, onOpenChange, timeRemaining }: Se
 
       if (response.ok) {
         // Session refreshed successfully
+        const data = await response.json();
         toast({
           title: "Session Extended",
           description: "Your session has been extended for another 10 minutes.",
         });
         onOpenChange(false);
-        // The auth context will handle updating the timer
-        window.location.reload(); // Simple way to reset the session timer
+        // Reload to get updated session info from server
+        window.location.reload();
       } else {
         throw new Error('Failed to extend session');
       }
