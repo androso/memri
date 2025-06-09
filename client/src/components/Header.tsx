@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Camera, BookOpen, Compass, Plus, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import UserAccountMenu from "@/components/UserAccountMenu";
+import { SessionTimer } from "@/components/SessionTimer";
+import { SessionStatus } from "@/components/SessionStatus";
 import { usePartner } from "@/hooks/usePartnerships";
 
 interface HeaderProps {
@@ -66,6 +68,7 @@ export default function Header({ onCreateCollection }: HeaderProps) {
           </div>
         </div>
         <div className="flex items-center gap-4">
+          <SessionTimer />
           <UserAccountMenu />
           <HandDrawn>
             <Button 
@@ -77,6 +80,13 @@ export default function Header({ onCreateCollection }: HeaderProps) {
           </HandDrawn>
         </div>
       </nav>
+
+      {/* Session Status Bar - Prominent display between header and hero */}
+      <div className="container mx-auto px-4 py-2">
+        <div className="flex justify-center">
+          <SessionStatus />
+        </div>
+      </div>
 
       {/* Hero section */}
       <div className="container mx-auto px-4 pt-6 pb-6 text-center relative">

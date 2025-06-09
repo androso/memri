@@ -15,4 +15,7 @@ router.post('/logout', AuthController.requireAuth, AuthController.logout);
 // Get current user endpoint
 router.get('/me', AuthController.requireAuth, AuthController.getCurrentUser);
 
+// Refresh session endpoint
+router.post('/refresh', AuthController.requireAuth, AuthController.refreshSession);
+
 export { router as authRouter }; 

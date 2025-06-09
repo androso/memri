@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { CommentsSidebar } from "@/components/CommentsSidebar";
 import { PhotoUploadDialog } from "@/components/PhotoUploadDialog";
 import { EditDateMemoryModal } from "@/components/modals/EditDateMemoryModal";
+import { SessionStatusWidget } from "@/components/SessionStatusWidget";
 import { 
   ArrowLeft, 
   Heart, 
@@ -161,9 +162,12 @@ export default function ViewDateMemory() {
     return (
       <div className="bg-[#F4F1EA] min-h-screen p-4 md:p-8">
         <div className="max-w-5xl mx-auto">
-          <Button variant="outline" className="mb-4" onClick={() => navigate("/")}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
-          </Button>
+          <div className="flex items-center justify-between mb-4">
+            <Button variant="outline" onClick={() => navigate("/")}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
+            </Button>
+            <SessionStatusWidget compact={true} />
+          </div>
           <div className="bg-white rounded-lg overflow-hidden shadow-md">
             <Skeleton className="w-full h-[40vh]" />
             <div className="p-6">
@@ -218,13 +222,17 @@ export default function ViewDateMemory() {
       <WatercolorOverlay />
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <Button 
-          variant="outline" 
-          className="mb-4 font-quicksand" 
-          onClick={() => navigate("/")}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Memories
-        </Button>
+        <div className="flex items-center justify-between mb-4">
+          <Button 
+            variant="outline" 
+            className="font-quicksand" 
+            onClick={() => navigate("/")}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Memories
+          </Button>
+          
+          <SessionStatusWidget compact={true} />
+        </div>
         
         <div className="grid grid-cols-1 xl:grid-cols-[1fr,400px] gap-6">
           {/* Main content */}

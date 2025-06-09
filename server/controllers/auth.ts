@@ -5,8 +5,8 @@ import { validateSchema } from "../types";
 import { databaseSessionStore } from "../databaseSessionStore";
 
 // Session configuration
-const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
-const SESSION_REFRESH_THRESHOLD = 24 * 60 * 60 * 1000; // Refresh if less than 24 hours remaining
+const SESSION_DURATION = 10 * 60 * 1000; // 10 minutes
+const SESSION_REFRESH_THRESHOLD = 2 * 60 * 1000; // Refresh if less than 2 minutes remaining
 
 // Extend Express Request type to include user
 declare global {
@@ -178,7 +178,7 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        maxAge: 10 * 60 * 1000 // 10 minutes
       });
       
       return res.json({ user: result.user, sessionId: result.sessionId });
@@ -220,7 +220,7 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        maxAge: 10 * 60 * 1000 // 10 minutes
       });
       
       return res.status(201).json({ user: result.user, sessionId: result.sessionId });
@@ -240,6 +240,38 @@ export class AuthController {
   // Get current user endpoint handler
   static async getCurrentUser(req: Request, res: Response): Promise<Response> {
     return res.json({ user: req.user });
+  }
+
+  // Refresh session endpoint handler
+  static async refreshSession(req: Request, res: Response): Promise<Response> {
+    try {
+      if (!req.sessionId || !req.user) {
+        return res.status(401).json({ message: 'No active session to refresh' });
+      }
+
+      // Delete the old session
+      await AuthService.deleteSession(req.sessionId);
+
+      // Create a new session with fresh expiration time
+      const newSessionId = await AuthService.createSession(req.user.id, req.user.username);
+
+      // Set new session cookie
+      res.cookie('sessionId', newSessionId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 10 * 60 * 1000 // 10 minutes
+      });
+
+      return res.json({ 
+        message: 'Session refreshed successfully',
+        sessionId: newSessionId,
+        user: req.user 
+      });
+    } catch (error) {
+      console.error('Session refresh error:', error);
+      return res.status(500).json({ message: 'Failed to refresh session' });
+    }
   }
 
   // Middleware for requiring authentication
@@ -317,7 +349,7 @@ export class AuthController {
   }
 }
 
-// Clean expired sessions every hour
+// Clean expired sessions every 5 minutes
 setInterval(async () => {
   await AuthService.cleanExpiredSessions();
-}, 60 * 60 * 1000); 
+}, 5 * 60 * 1000); 

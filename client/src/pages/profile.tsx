@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getImageUrl } from '@/lib/utils';
 import PartnershipCard from "@/components/PartnershipCard";
+import { SessionStatusWidget } from "@/components/SessionStatusWidget";
 
 interface User {
   id: number;
@@ -138,6 +139,11 @@ export default function ProfilePage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Memories
           </Button>
+          
+          {/* Session Status in top right */}
+          <div className="ml-auto">
+            <SessionStatusWidget compact={true} />
+          </div>
         </div>
 
         <div className="max-w-2xl mx-auto">

@@ -24,10 +24,10 @@ interface SessionData {
 
 class DatabaseSessionStore {
   constructor() {
-    // Clean expired sessions every hour
+    // Clean expired sessions every 5 minutes (more frequent for 10-minute sessions)
     setInterval(() => {
       this.cleanExpiredSessions();
-    }, 60 * 60 * 1000);
+    }, 5 * 60 * 1000);
     
     // Initial cleanup
     this.cleanExpiredSessions();

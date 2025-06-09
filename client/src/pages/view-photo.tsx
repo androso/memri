@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import EditPhotoModal from "@/components/modals/EditPhotoModal";
 import { getImageUrl } from "@/lib/utils";
 import CommentsSidebar from "@/components/CommentsSidebar";
+import { SessionStatusWidget } from "@/components/SessionStatusWidget";
 
 export default function ViewPhoto() {
   const { id } = useParams();
@@ -88,9 +89,12 @@ export default function ViewPhoto() {
     return (
       <div className="bg-[#F4F1EA] min-h-screen p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
-          <Button variant="outline" className="mb-4" onClick={() => navigate("/")}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
-          </Button>
+          <div className="flex items-center justify-between mb-4">
+            <Button variant="outline" onClick={() => navigate("/")}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
+            </Button>
+            <SessionStatusWidget compact={true} />
+          </div>
           <div className="bg-white rounded-lg overflow-hidden shadow-md">
             <Skeleton className="w-full h-[60vh]" />
             <div className="p-6">
@@ -128,13 +132,17 @@ export default function ViewPhoto() {
       <WatercolorOverlay />
       
       <div className="max-w-5xl mx-auto relative z-10">
-        <Button 
-          variant="outline" 
-          className="mb-4 font-quicksand" 
-          onClick={() => navigate("/")}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
-        </Button>
+        <div className="flex items-center justify-between mb-4">
+          <Button 
+            variant="outline" 
+            className="font-quicksand" 
+            onClick={() => navigate("/")}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
+          </Button>
+          
+          <SessionStatusWidget compact={true} />
+        </div>
         
         <div className="lg:col-span-2">
           <HandDrawn className="bg-white overflow-hidden shadow-lg mb-6">

@@ -290,8 +290,11 @@ export default function LoginPage() {
                   <p className="text-[#F4F1EA] opacity-80 text-lg mb-2">
                     Please enter your password to continue
                   </p>
-                  <p className="text-[#F4F1EA] opacity-70 text-sm">
+                  <p className="text-[#F4F1EA] opacity-70 text-sm mb-1">
                     Use "demo123" as password
+                  </p>
+                  <p className="text-[#F4F1EA] opacity-60 text-xs">
+                    ⚠️ Sessions last 10 minutes for security
                   </p>
                 </div>
                 
