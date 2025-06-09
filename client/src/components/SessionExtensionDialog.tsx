@@ -40,7 +40,7 @@ export function SessionExtensionDialog({ open, onOpenChange, timeRemaining }: Se
         const data = await response.json();
         toast({
           title: "Session Extended",
-          description: "Your session has been extended for another 10 minutes.",
+          description: "Your session has been extended for another 15 seconds.",
         });
         onOpenChange(false);
         // Reload to get updated session info from server
@@ -80,13 +80,13 @@ export function SessionExtensionDialog({ open, onOpenChange, timeRemaining }: Se
             <span className={`font-semibold ${isCriticalState ? 'text-red-600' : 'text-yellow-600'}`}>
               {formattedTimeRemaining}
             </span>
-            . Would you like to extend your session for another 10 minutes?
+            . Would you like to extend your session for another 15 seconds?
           </DialogDescription>
         </DialogHeader>
         
         <div className={`p-4 rounded-lg ${isCriticalState ? 'bg-red-50 border border-red-200' : 'bg-yellow-50 border border-yellow-200'}`}>
           <p className="text-sm text-gray-600">
-            ⚠️ For security purposes, sessions automatically expire after 10 minutes of activity.
+            ⚠️ For security purposes, sessions automatically expire after 15 seconds of activity.
           </p>
         </div>
         

@@ -5,8 +5,8 @@ import { validateSchema } from "../types";
 import { databaseSessionStore } from "../databaseSessionStore";
 
 // Session configuration
-const SESSION_DURATION = 10 * 60 * 1000; // 10 minutes
-const SESSION_REFRESH_THRESHOLD = 2 * 60 * 1000; // Refresh if less than 2 minutes remaining
+const SESSION_DURATION = 15 * 1000; // 15 seconds (testing)
+const SESSION_REFRESH_THRESHOLD = 5 * 1000; // Refresh if less than 5 seconds remaining
 
 // Extend Express Request type to include user
 declare global {
@@ -181,13 +181,13 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 10 * 60 * 1000 // 10 minutes
+        maxAge: 15 * 1000 // 15 seconds
       });
       
       return res.json({ 
         user: result.user, 
         sessionId: result.sessionId,
-        sessionExpiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
+        sessionExpiresAt: new Date(Date.now() + 15 * 1000).toISOString()
       });
     } catch (error) {
       console.error('Login error:', error);
@@ -227,7 +227,7 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 10 * 60 * 1000 // 10 minutes
+        maxAge: 15 * 1000 // 15 seconds
       });
       
       return res.status(201).json({ user: result.user, sessionId: result.sessionId });
@@ -285,14 +285,14 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 10 * 60 * 1000 // 10 minutes
+        maxAge: 15 * 1000 // 15 seconds
       });
 
       return res.json({ 
         message: 'Session refreshed successfully',
         sessionId: newSessionId,
         user: req.user,
-        sessionExpiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
+        sessionExpiresAt: new Date(Date.now() + 15 * 1000).toISOString()
       });
     } catch (error) {
       console.error('Session refresh error:', error);
