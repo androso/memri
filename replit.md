@@ -138,6 +138,12 @@ Changelog:
   * Manual cleanup API endpoints and frontend widget for demo user control
   * Firebase Storage integration for complete file cleanup
   * Session-aware cleanup handling edge cases
+- June 15, 2025. Implemented on-the-fly temporary demo user generation:
+  * Automatic creation of unique temporary demo users via "Try Demo" button
+  * Each visitor gets isolated workspace with access to protected collections (1,2,3,4,6)
+  * Automatic cleanup of temporary users and all their data after session expiration
+  * Scheduled cleanup every 15 minutes to maintain system performance
+  * Complete isolation between multiple concurrent demo users
 ```
 
 ## User Preferences
