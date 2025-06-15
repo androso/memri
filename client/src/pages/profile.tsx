@@ -34,6 +34,9 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  
+  // Check if current user is demo user
+  const isDemoUser = user?.username === 'demo';
 
   // Initialize form with user data
   useEffect(() => {
@@ -55,7 +58,8 @@ export default function ProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password && password !== confirmPassword) {
+    // Demo user cannot change password
+    if (!isDemoUser && password && password !== confirmPassword) {
       toast({
         title: "Password Mismatch",
         description: "Passwords do not match",
@@ -73,7 +77,8 @@ export default function ProfilePage() {
         formData.append('displayName', displayName);
       }
       
-      if (password) {
+      // Only include password for non-demo users
+      if (!isDemoUser && password) {
         formData.append('password', password);
       }
       
@@ -92,8 +97,10 @@ export default function ProfilePage() {
       if (response.ok) {
         // Refresh user data from the auth context
         await refreshUser();
-        setPassword("");
-        setConfirmPassword("");
+        if (!isDemoUser) {
+          setPassword("");
+          setConfirmPassword("");
+        }
         setProfilePicture(null);
         
         toast({
@@ -233,39 +240,41 @@ export default function ProfilePage() {
                   <p className="text-sm text-gray-500">Username cannot be changed</p>
                 </div>
 
-                {/* Password */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-[#9C7178]" />
-                    <Label className="text-base font-medium">Change Password</Label>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="password">New Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="border-[#E6B89C]/50 focus:border-[#9C7178]"
-                      placeholder="Leave blank to keep current password"
-                    />
-                  </div>
-                  
-                  {password && (
+                {/* Password - Hidden for demo user */}
+                {user?.username !== 'demo' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-[#9C7178]" />
+                      <Label className="text-base font-medium">Change Password</Label>
+                    </div>
+                    
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                      <Label htmlFor="password">New Password</Label>
                       <Input
-                        id="confirmPassword"
+                        id="password"
                         type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className="border-[#E6B89C]/50 focus:border-[#9C7178]"
-                        placeholder="Confirm your new password"
+                        placeholder="Leave blank to keep current password"
                       />
                     </div>
-                  )}
-                </div>
+                    
+                    {password && (
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                        <Input
+                          id="confirmPassword"
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="border-[#E6B89C]/50 focus:border-[#9C7178]"
+                          placeholder="Confirm your new password"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Submit Button */}
                 <Button

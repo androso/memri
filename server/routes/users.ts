@@ -34,7 +34,8 @@ router.put('/profile', AuthController.requireAuth, upload.single('profilePicture
       updateData.displayName = req.body.displayName;
     }
     
-    if (req.body.password) {
+    // Prevent password changes for demo user
+    if (req.body.password && req.user.username !== 'demo') {
       updateData.password = await AuthService.hashPassword(req.body.password);
     }
     
