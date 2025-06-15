@@ -171,7 +171,10 @@ export default function ProfilePage() {
                 Account Information
               </CardTitle>
               <CardDescription>
-                Update your display name, password, and profile picture
+                {isDemoUser 
+                  ? "Update your display name and profile picture" 
+                  : "Update your display name, password, and profile picture"
+                }
               </CardDescription>
             </CardHeader>
             
@@ -241,7 +244,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Password - Hidden for demo user */}
-                {user?.username !== 'demo' && (
+                {!isDemoUser && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
                       <Lock className="w-4 h-4 text-[#9C7178]" />
