@@ -33,7 +33,7 @@ export default function LoginPage() {
   }, [user, navigate]);
 
   const [userProfiles, setUserProfiles] = useState<User[]>([]);
-  const [loadingProfiles, setLoadingProfiles] = useState(true);
+  const [loadingProfiles, setLoadingProfiles] = useState(false);
 
   // Generate avatar and color for a user
   const generateUserAvatar = (displayName: string, username: string) => {
@@ -60,42 +60,42 @@ export default function LoginPage() {
   };
 
   // Fetch user profiles with profile pictures
-  useEffect(() => {
-    const fetchUserProfiles = async () => {
-      try {
-        setLoadingProfiles(true);
-        const response = await fetch('/api/users/profiles');
-        if (response.ok) {
-          const profiles = await response.json();
+  // useEffect(() => {
+  //   const fetchUserProfiles = async () => {
+  //     try {
+  //       setLoadingProfiles(true);
+  //       const response = await fetch('/api/users/profiles');
+  //       if (response.ok) {
+  //         const profiles = await response.json();
           
-          // Filter out all demo users (both permanent and temporary) and convert profiles to User format
-          const nonDemoProfiles = profiles.filter((profile: any) => 
-            !profile.username.startsWith('demo') && profile.username !== 'demo'
-          );
+  //         // Filter out all demo users (both permanent and temporary) and convert profiles to User format
+  //         const nonDemoProfiles = profiles.filter((profile: any) => 
+  //           !profile.username.startsWith('demo') && profile.username !== 'demo'
+  //         );
           
-          const users: User[] = nonDemoProfiles.map((profile: any) => {
-            const { avatar, color } = generateUserAvatar(profile.displayName, profile.username);
+  //         const users: User[] = nonDemoProfiles.map((profile: any) => {
+  //           const { avatar, color } = generateUserAvatar(profile.displayName, profile.username);
             
-            return {
-              id: profile.username,
-              name: profile.displayName,
-              avatar,
-              color,
-              profilePicture: profile.profilePicture ? `/api/images/${profile.profilePicture}` : undefined
-            };
-          });
+  //           return {
+  //             id: profile.username,
+  //             name: profile.displayName,
+  //             avatar,
+  //             color,
+  //             profilePicture: profile.profilePicture ? `/api/images/${profile.profilePicture}` : undefined
+  //           };
+  //         });
           
-          setUserProfiles(users);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user profiles:', error);
-      } finally {
-        setLoadingProfiles(false);
-      }
-    };
+  //         setUserProfiles(users);
+  //       }
+  //     } catch (error) {
+  //       console.error('Failed to fetch user profiles:', error);
+  //     } finally {
+  //       setLoadingProfiles(false);
+  //     }
+  //   };
 
-    fetchUserProfiles();
-  }, []);
+  //   fetchUserProfiles();
+  // }, []);
 
   const handleUserSelect = (user: User) => {
     setSelectedUser(user);
@@ -216,13 +216,13 @@ export default function LoginPage() {
             )}
 
             {/* No Users State */}
-            {!loadingProfiles && userProfiles.length === 0 && (
+            {/* {!loadingProfiles && userProfiles.length === 0 && (
               <div className="text-center">
                 <p className="text-[#F4F1EA] text-xl mb-2">
                   No users found. Please contact your administrator.
                 </p>
               </div>
-            )}
+            )} */}
 
             {/* Demo User Instruction */}
             {!loadingProfiles && userProfiles.length > 0 && (
