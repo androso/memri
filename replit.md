@@ -132,6 +132,12 @@ Ghibli Memories is a whimsical photo album web application inspired by Studio Gh
 Changelog:
 - June 15, 2025. Initial setup
 - June 15, 2025. Added immutability protection for collections 1, 2, 3, 4, and 6 - these collections cannot be deleted
+- June 15, 2025. Implemented comprehensive demo user cleanup functionality:
+  * Automatic cleanup of non-protected collections and photos on session expiration/logout
+  * Scheduled cleanup every 30 minutes to maintain demo environment
+  * Manual cleanup API endpoints and frontend widget for demo user control
+  * Firebase Storage integration for complete file cleanup
+  * Session-aware cleanup handling edge cases
 ```
 
 ## User Preferences

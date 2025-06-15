@@ -299,6 +299,9 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
+          {/* Demo Content Management - Only for demo user */}
+          {isDemoUser && <DemoCleanupWidget />}
+
           {/* Partnership Management */}
           <PartnershipCard />
         </div>
