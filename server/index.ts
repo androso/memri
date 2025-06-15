@@ -4,6 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { initializeFirebase } from "./firebase";
 import { config } from "dotenv";
 import cookieParser from "cookie-parser";
+import { DemoCleanupService } from "./models/demo-cleanup-service";
 
 const app = express();
 app.use(express.json());
@@ -76,5 +77,18 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Start scheduled demo cleanup (every 30 minutes)
+    setInterval(async () => {
+      try {
+        log("Running scheduled demo cleanup...");
+        await DemoCleanupService.cleanupDemoUserContent();
+        log("Scheduled demo cleanup completed");
+      } catch (error) {
+        console.error("Error during scheduled demo cleanup:", error);
+      }
+    }, 30 * 60 * 1000); // 30 minutes
+    
+    log("Demo cleanup service initialized with 30-minute intervals");
   });
 })();

@@ -7,7 +7,8 @@ import {
   collectionsRouter,
   photosRouter,
   commentsRouter,
-  partnershipsRouter
+  partnershipsRouter,
+  demoCleanupRouter
 } from "./routes/index";
 
 export function registerRoutes(app: Express): Server {
@@ -19,6 +20,7 @@ export function registerRoutes(app: Express): Server {
   app.use('/api/photos', photosRouter);
   app.use('/api/comments', commentsRouter);
   app.use('/api/partnerships', partnershipsRouter);
+  app.use('/api/demo', demoCleanupRouter);
   
   // Mount photo comments routes (special case)
   app.use('/api/photos', commentsRouter);

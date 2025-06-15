@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getImageUrl } from '@/lib/utils';
 import PartnershipCard from "@/components/PartnershipCard";
 import { SessionStatusWidget } from "@/components/SessionStatusWidget";
+import { DemoCleanupWidget } from "@/components/DemoCleanupWidget";
 
 interface User {
   id: number;
