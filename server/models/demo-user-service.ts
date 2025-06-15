@@ -279,12 +279,16 @@ export class DemoUserService {
           displayName: users.displayName,
           createdAt: users.createdAt
         })
-        .from(users)
-        .where(eq(users.username, `${this.DEMO_USER_PREFIX}%`)); // PostgreSQL LIKE syntax
+        .from(users); // Get all users and filter in code since LIKE needs special syntax
+      
+      // Filter for temporary demo users
+      const filteredUsers = tempUsers.filter(user => 
+        this.isTemporaryDemoUser(user.username)
+      );
 
       return {
-        totalUsers: tempUsers.length,
-        users: tempUsers
+        totalUsers: filteredUsers.length,
+        users: filteredUsers
       };
     } catch (error) {
       console.error('Error getting temporary demo users summary:', error);

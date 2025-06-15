@@ -90,6 +90,17 @@ app.use((req, res, next) => {
       }
     }, 30 * 60 * 1000); // 30 minutes
     
-    log("Demo cleanup service initialized with 30-minute intervals");
+    // Start scheduled cleanup of expired temporary demo users (every 15 minutes)
+    setInterval(async () => {
+      try {
+        log("Running expired temporary demo users cleanup...");
+        await DemoUserService.cleanupExpiredDemoUsers();
+        log("Expired temporary demo users cleanup completed");
+      } catch (error) {
+        console.error("Error during expired demo users cleanup:", error);
+      }
+    }, 15 * 60 * 1000); // 15 minutes
+    
+    log("Demo cleanup services initialized with periodic cleanup intervals");
   });
 })();

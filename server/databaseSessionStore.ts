@@ -4,6 +4,7 @@ import { sessions, type Session, type InsertSession } from "@shared/schema";
 import { eq, lt } from "drizzle-orm";
 import { config } from "dotenv";
 import { DemoCleanupService } from "./models/demo-cleanup-service";
+import { DemoUserService } from "./models/demo-user-service";
 
 // Load environment variables
 config();
@@ -88,8 +89,25 @@ class DatabaseSessionStore {
 
   async delete(sessionId: string): Promise<boolean> {
     try {
-      // Trigger demo cleanup before deleting session if it belongs to demo user
-      await DemoCleanupService.cleanupDemoUserContentForSession(sessionId);
+      // Check if this is a temporary demo user session and trigger cleanup
+      const sessionData = await db.select({
+        userId: sessions.userId,
+        username: sessions.username
+      }).from(sessions).where(eq(sessions.id, sessionId)).limit(1);
+      
+      if (sessionData.length > 0) {
+        const { userId, username } = sessionData[0];
+        
+        // If it's a temporary demo user, clean up the entire user
+        if (DemoUserService.isTemporaryDemoUser(username)) {
+          console.log(`Cleaning up temporary demo user ${username} on session deletion`);
+          await DemoUserService.cleanupTemporaryDemoUser(userId, sessionId);
+          return true; // User deletion will cascade to session deletion
+        } else {
+          // For regular demo user, just clean up their content
+          await DemoCleanupService.cleanupDemoUserContentForSession(sessionId);
+        }
+      }
       
       const result = await db.delete(sessions).where(eq(sessions.id, sessionId));
       return result.length > 0;
