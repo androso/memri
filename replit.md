@@ -131,6 +131,7 @@ Ghibli Memories is a whimsical photo album web application inspired by Studio Gh
 ```
 Changelog:
 - June 15, 2025. Initial setup
+- June 15, 2025. Added immutability protection for collections 1, 2, 3, 4, and 6 - these collections cannot be deleted
 ```
 
 ## User Preferences
