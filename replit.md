@@ -144,7 +144,7 @@ Changelog:
   * Automatic cleanup of temporary users and all their data after session expiration
   * Scheduled cleanup every 15 minutes to maintain system performance
   * Complete isolation between multiple concurrent demo users
-  * Clean login interface - temporary users filtered from display, only permanent users shown
+  * Clean login interface - all demo users filtered from display, only "Try Demo" button shown
 ```
 
 ## User Preferences

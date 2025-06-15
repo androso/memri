@@ -68,12 +68,12 @@ export default function LoginPage() {
         if (response.ok) {
           const profiles = await response.json();
           
-          // Filter out temporary demo users and convert profiles to User format
-          const permanentProfiles = profiles.filter((profile: any) => 
-            !profile.username.startsWith('demo_')
+          // Filter out all demo users (both permanent and temporary) and convert profiles to User format
+          const nonDemoProfiles = profiles.filter((profile: any) => 
+            !profile.username.startsWith('demo') && profile.username !== 'demo'
           );
           
-          const users: User[] = permanentProfiles.map((profile: any) => {
+          const users: User[] = nonDemoProfiles.map((profile: any) => {
             const { avatar, color } = generateUserAvatar(profile.displayName, profile.username);
             
             return {
