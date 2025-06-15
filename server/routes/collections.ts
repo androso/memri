@@ -238,6 +238,12 @@ router.delete('/:id', AuthController.requireAuth, async (req: Request, res: Resp
     }
   } catch (error) {
     console.error('Error deleting collection:', error);
+    
+    // Check if it's a protected collection error
+    if (error instanceof Error && error.message.includes('is protected and cannot be deleted')) {
+      return res.status(403).json({ message: error.message });
+    }
+    
     return res.status(500).json({ message: 'Failed to delete collection' });
   }
 });

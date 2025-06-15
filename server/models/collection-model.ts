@@ -13,6 +13,9 @@ export async function getCollections(userId: number): Promise<Collection[]> {
       type: collections.type,
       userId: collections.userId,
       createdAt: collections.createdAt,
+      isTemporary: collections.isTemporary,
+      sessionId: collections.sessionId,
+      expiresAt: collections.expiresAt,
     })
     .from(collections)
     .innerJoin(collectionOwners, eq(collections.id, collectionOwners.collectionId))
@@ -32,6 +35,9 @@ export async function getCollectionsWithThumbnails(userId: number): Promise<(Col
       type: collections.type,
       userId: collections.userId,
       createdAt: collections.createdAt,
+      isTemporary: collections.isTemporary,
+      sessionId: collections.sessionId,
+      expiresAt: collections.expiresAt,
     })
     .from(collections)
     .innerJoin(collectionOwners, eq(collections.id, collectionOwners.collectionId))
@@ -48,7 +54,15 @@ export async function getCollectionsWithThumbnails(userId: number): Promise<(Col
         .limit(1);
       
       return {
-        ...collection,
+        id: collection.id,
+        name: collection.name,
+        description: collection.description,
+        type: collection.type,
+        userId: collection.userId,
+        createdAt: collection.createdAt,
+        isTemporary: collection.isTemporary,
+        sessionId: collection.sessionId,
+        expiresAt: collection.expiresAt,
         thumbnailUrl: firstPhoto.length > 0 ? firstPhoto[0].filePath : undefined
       };
     })
@@ -99,6 +113,13 @@ export async function updateCollection(id: number, collectionUpdate: Partial<Ins
 }
 
 export async function deleteCollection(id: number): Promise<boolean> {
+  // Protected collections that cannot be deleted
+  const protectedCollections = [1, 2, 3, 4, 6];
+  
+  if (protectedCollections.includes(id)) {
+    throw new Error(`Collection ${id} is protected and cannot be deleted`);
+  }
+  
   // Import here to avoid circular dependency
   const { deletePhotoFromFirebaseStorage } = await import("./photo-model");
   
