@@ -3,6 +3,7 @@ import postgres from "postgres";
 import { sessions, type Session, type InsertSession } from "@shared/schema";
 import { eq, lt } from "drizzle-orm";
 import { config } from "dotenv";
+import { DemoCleanupService } from "./models/demo-cleanup-service";
 
 // Load environment variables
 config();
@@ -87,8 +88,11 @@ class DatabaseSessionStore {
 
   async delete(sessionId: string): Promise<boolean> {
     try {
+      // Trigger demo cleanup before deleting session if it belongs to demo user
+      await DemoCleanupService.cleanupDemoUserContentForSession(sessionId);
+      
       const result = await db.delete(sessions).where(eq(sessions.id, sessionId));
-      return result.rowCount > 0;
+      return result.length > 0;
     } catch (error) {
       console.error('Error deleting session:', error);
       return false;
