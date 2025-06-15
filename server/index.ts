@@ -5,6 +5,7 @@ import { initializeFirebase } from "./firebase";
 import { config } from "dotenv";
 import cookieParser from "cookie-parser";
 import { DemoCleanupService } from "./models/demo-cleanup-service";
+import { DemoUserService } from "./models/demo-user-service";
 
 const app = express();
 app.use(express.json());

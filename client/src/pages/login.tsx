@@ -140,6 +140,45 @@ export default function LoginPage() {
     setShowPassword(false);
   };
 
+  const handleTryDemo = async () => {
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/demo-users/create', {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: `Welcome to the Demo!`,
+          description: `You're now logged in as ${data.user.displayName}`,
+        });
+        
+        // Trigger auth context refresh to pick up the new session
+        await login(data.user.username, 'demo123');
+        navigate("/");
+      } else {
+        toast({
+          title: "Demo Creation Failed",
+          description: data.message || "Failed to create demo user",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Demo creation error:', error);
+      toast({
+        title: "Demo Creation Failed",
+        description: "An error occurred while creating demo user. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#4A4A4A] via-[#9C7178] to-[#E6B89C] relative font-lato">
       <WatercolorOverlay opacity={0.15} />
@@ -189,6 +228,30 @@ export default function LoginPage() {
                 </p>
               </div>
             )}
+
+            {/* Try Demo Button - Always visible */}
+            <div className="text-center mb-8">
+              <Button
+                onClick={handleTryDemo}
+                disabled={isLoading}
+                className="bg-[#E6B89C] hover:bg-[#E6B89C]/90 text-[#4A4A4A] font-semibold px-8 py-3 text-lg rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-[#4A4A4A]/30 border-t-[#4A4A4A] rounded-full animate-spin mr-2"></div>
+                    Creating Demo...
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-5 h-5 mr-2" />
+                    Try Demo
+                  </>
+                )}
+              </Button>
+              <p className="text-[#F4F1EA]/80 text-sm mt-2">
+                Get instant access with a temporary demo account
+              </p>
+            </div>
 
             {/* User Profiles */}
             {!loadingProfiles && userProfiles.length > 0 && (
