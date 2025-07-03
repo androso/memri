@@ -10,7 +10,7 @@ export function HandDrawn({ children, className }: HandDrawnProps) {
   return (
     <div 
       className={cn(
-        "hand-drawn overflow-scroll",
+        "hand-drawn overflow-auto",
         className
       )}
     >
